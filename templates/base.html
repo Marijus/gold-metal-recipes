@@ -29,9 +29,9 @@
     <nav class="navbar navbar-default navbar-static-top" role="navigation">
         <div class="container">
             <div class="navbar-header">
-                <a href="#" class="navbar-brand">tshirtmafia</a>
+                <a href="#" class="navbar-brand">Receptai</a>
             </div>
-{#            <div class="navbar-collapse collapse">#}
+            <div class="navbar-collapse collapse">
 {#                <ul class="nav navbar-nav">#}
 {#                    {% if request.user.is_staff %}#}
 {#                        <li><a href="{% url 'batches' %}">Designs</a></li>#}
@@ -41,12 +41,17 @@
 {#                    {% endif %}#}
 {#                    <li><a href="/">Download</a></li>#}
 {#                </ul>#}
-{#                <ul class="nav navbar-nav navbar-right">#}
-{#                    <li><a href="#"><span#}
-{#                            class="glyphicon glyphicon-user"></span> {{ request.user.first_name }} {{ request.user.last_name }}</a></li>#}
-{#                    <li><a href="{% url 'logout' %}"><span class="glyphicon glyphicon-off"></span></a></li>#}
-{#                </ul>#}
-{#            </div>#}
+                <ul class="nav navbar-nav navbar-right">
+                    {% if request.user.is_authenticated %}
+                    <li><a href="#"><span
+                            class="glyphicon glyphicon-user"></span>  {{ request.user.username }}</a></li>
+                    <li><a href="/accounts/logout/"><span class="glyphicon glyphicon-off"></span></a></li>
+                    {% else %}
+                        <li><a href="/accounts/login/"><span
+                            class="glyphicon glyphicon-user"></span>  Prisijungti</a></li>
+                    {% endif %}
+                </ul>
+            </div>
         </div>
     </nav>
     <div class="container">

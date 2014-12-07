@@ -43,6 +43,7 @@ INSTALLED_APPS = (
     'recipes',
     'south',
     'sorl.thumbnail',
+    'pagination',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -52,6 +53,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'pagination.middleware.PaginationMiddleware',
 )
 
 ROOT_URLCONF = 'gold_metal.urls'
@@ -113,6 +115,9 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "allauth.account.context_processors.account",
     "allauth.socialaccount.context_processors.socialaccount",
     'django.contrib.auth.context_processors.auth',
+    "django.core.context_processors.debug",
+    "django.core.context_processors.i18n",
+    "django.core.context_processors.media",
 )
 
 SITE_ID = 1

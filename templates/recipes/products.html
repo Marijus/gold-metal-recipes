@@ -1,41 +1,51 @@
 {% extends "base.html" %}
 {% load thumbnail %}
+{% load pagination_tags %}
+{% load recipe_tags %}
 
 {% block content %}
     <form role="search" method="get">
         <div class="input-group col-lg-6 col-lg-offset-3">
-            <input type="text" class="form-control" id="query" name="query" placeholder="Ieškoti receptų pagal pavadinimą..">
+            <input type="text" class="form-control" id="query" name="query"
+                   placeholder="Ieškoti receptų pagal pavadinimą..">
+
             <div class="input-group-btn">
                 <button type="submit" class="btn btn-success">
-                <span class="glyphicon glyphicon-search"></span></button>
+                    <span class="glyphicon glyphicon-search"></span></button>
             </div>
         </div>
     </form>
     <br/>
 
-    {% for product in products %}
-        {% if forloop.counter|divisibleby:"4" %}
-            <div class="row-fluid">
-        {% endif %}
+    {% autopaginate products 4 %}
+    {% for group in products|group_by:4 %}
 
-    <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
-        <div class="thumbnail">
-            {% thumbnail product.photo "300x300" crop="center" as im %}
-                <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
-            {% endthumbnail %}
-            <div class="caption">
-                <h3>{{ product.title }}</h3>
-                <p>{{ product.description }}</p>
-                <p>
-                    <a href="#" class="btn btn-info">Peržiūrėti</a>
-                    <a href="#" class="btn btn-success">Pridėti į šaldytuvą</a>
-                </p>
-            </div>
-        </div>
-    </div>
+        <div class="row-fluid">
+            {% for product in group %}
 
-    {% if forloop.counter|divisibleby:"4" %}
+                <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+                    <div class="thumbnail">
+                        {% thumbnail product.photo "300x300" crop="center" as im %}
+                            <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+                        {% endthumbnail %}
+                        <div class="caption">
+                            <h3>{{ product.title }}</h3>
+
+                            <p>{{ product.description }}</p>
+
+                            <p>
+                                <a href="#" class="btn btn-info">Peržiūrėti</a>
+                                <a href="#" class="btn btn-success">Pridėti į šaldytuvą</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            {% endfor %}
         </div>
-    {% endif %}
     {% endfor %}
+    </div>
+    <div class="text-center">
+        {% paginate %}
+    </div>
 {% endblock %}

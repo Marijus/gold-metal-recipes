@@ -1,21 +1,41 @@
 {% extends "base.html" %}
-{% load thumbnail    %}
+{% load thumbnail %}
 
 {% block content %}
+    <form role="search" method="get">
+        <div class="input-group col-lg-6 col-lg-offset-3">
+            <input type="text" class="form-control" id="query" name="query" placeholder="Ieškoti receptų pagal pavadinimą..">
+            <div class="input-group-btn">
+                <button type="submit" class="btn btn-success">
+                <span class="glyphicon glyphicon-search"></span></button>
+            </div>
+        </div>
+    </form>
+    <br/>
+
     {% for product in products %}
         {% if forloop.counter|divisibleby:"4" %}
             <div class="row-fluid">
         {% endif %}
 
-        <div class="col-lg-3">
-            {% thumbnail product.photo "100x100" crop="center" as im %}
+    <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+        <div class="thumbnail">
+            {% thumbnail product.photo "300x300" crop="center" as im %}
                 <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
-                {{ products.title }}
             {% endthumbnail %}
-        </div>
-
-        {% if forloop.counter|divisibleby:"4" %}
+            <div class="caption">
+                <h3>{{ product.title }}</h3>
+                <p>{{ product.description }}</p>
+                <p>
+                    <a href="#" class="btn btn-info">Peržiūrėti</a>
+                    <a href="#" class="btn btn-success">Pridėti į šaldytuvą</a>
+                </p>
             </div>
-        {% endif %}
+        </div>
+    </div>
+
+    {% if forloop.counter|divisibleby:"4" %}
+        </div>
+    {% endif %}
     {% endfor %}
 {% endblock %}

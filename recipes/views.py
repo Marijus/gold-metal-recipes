@@ -2,6 +2,7 @@ from django.shortcuts import render
 
 from recipes.models import Measurement, Product
 from recipes.forms import MeasurmentForm, ProductForm
+from recipes.search import get_query
 
 def index(request):
     return render(request, "base.html")
@@ -36,6 +37,10 @@ def add_product(request):
 
 
 def products(request):
-    products = Product.objects.all()
+    if 'query' in request.GET and request.GET['query'].strip():
+        query = get_query(request.GET['query'], ['title'])
+        products = Product.objects.filter(query)
+    else:
+        products = Product.objects.all()
 
     return render(request, "recipes/products.html", {"products": products})

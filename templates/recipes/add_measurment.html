@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h3>Pridėti matavimo vienetą</h3>
+
+    {% if success %}
+        <p class="alert alert-success">Matavimo vienetas sėkmingai pridėtas</p>
+    {% endif %}
+
+    <form role="form" method="post">{% csrf_token %}
+        <div class="row">
+            <div class="form-group col-lg-3 col-md-4 col-sm-5 col-xs-6">
+                <label for="id_title">Pavadinimas</label>
+                <input class="form-control" id="id_title" maxlength="250" name="title" type="text"/>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group col-lg-3 col-md-4 col-sm-5 col-xs-6">
+                <label for="id_short_title">Trumpas pavadinimas</label>
+                <input class="form-control" id="id_short_title" maxlength="10" name="short_title" type="text"/>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group col-lg-3 col-md-4 col-sm-5 col-xs-6">
+                <input type="submit" class="btn btn-success" value="Pridėti">
+            </div>
+        </div>
+    </form>
+{% endblock %}

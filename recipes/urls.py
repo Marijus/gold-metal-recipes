@@ -7,4 +7,6 @@ urlpatterns = patterns('',
                        url(r'^$', index, name='index'),
                        url(r'^recipes/add', add_recipe, name='add_recipe'),
                        url(r'^add-measurement/$', add_measurement, name='add_measurement'),
+                       url(r'^add-product/$', add_product, name='add_product'),
+                       url(r'^products/$', products, name='products'),
 )

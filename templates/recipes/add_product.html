@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h3>Pridėti naują produktą</h3>
+
+    {% if success %}
+        <p class="alert alert-success">Produktas buvo sėkmingai pridėtas</p>
+    {% endif %}
+
+    <form role="form" method="post" enctype="multipart/form-data">{% csrf_token %}
+        <div class="row">
+            <div class="form-group col-lg-3 col-md-4 col-sm-5 col-xs-6">
+                <label for="id_title">Pavadinimas</label>
+                <input class="form-control" id="id_title" maxlength="250" name="title" type="text" />
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group col-lg-3 col-md-4 col-sm-5 col-xs-6">
+                <label for="id_description">Aprašymas</label>
+                <textarea class="form-control" cols="40" id="id_description" name="description" rows="10"></textarea>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group col-lg-3 col-md-4 col-sm-5 col-xs-6">
+                <label for="id_photo">Nuotrauka</label>
+                <input id="id_photo" name="photo" type="file" />
+            </div>
+        </div>
+
+        <input type="submit" class="btn btn-success" value="Pridėti">
+    </form>
+{% endblock %}

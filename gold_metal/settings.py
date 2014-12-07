@@ -42,6 +42,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'recipes',
     'south',
+    'sorl.thumbnail',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -99,6 +100,10 @@ TEMPLATE_DIRS = (
     os.path.join(BASE_DIR, "templates"),
 )
 
+MEDIA_URL = '/media/'
+
+MEDIA_ROOT = os.path.join("media")
+
 # Django all-auth setup
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -123,3 +128,5 @@ AUTHENTICATION_BACKENDS = (
 ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = "/"
 LOGIN_REDIRECT_URL = "/"
+
+THUMBNAIL_DEBUG = True

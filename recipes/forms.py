@@ -8,6 +8,6 @@ class MeasurmentForm(forms.ModelForm):
         model = Measurement
 
 
-class IngridientForm(forms.Form):
+class ProductForm(forms.ModelForm):
     class Meta:
         model = Product

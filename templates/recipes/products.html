@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load thumbnail    %}
+
+{% block content %}
+    {% for product in products %}
+        {% if forloop.counter|divisibleby:"4" %}
+            <div class="row-fluid">
+        {% endif %}
+
+        <div class="col-lg-3">
+            {% thumbnail product.photo "100x100" crop="center" as im %}
+                <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+                {{ products.title }}
+            {% endthumbnail %}
+        </div>
+
+        {% if forloop.counter|divisibleby:"4" %}
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endblock %}

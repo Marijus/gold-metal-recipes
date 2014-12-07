@@ -1,4 +1,5 @@
 from django.db import models
+from sorl.thumbnail import ImageField
 
 
 class Category(models.Model):
@@ -18,6 +19,8 @@ class Measurement(models.Model):
 
 class Product(models.Model):
     title = models.CharField(max_length=250)
+    description = models.TextField(blank=True, null=True)
+    photo = ImageField(upload_to="products", blank=True, null=True)
 
     def __unicode__(self):
         return self.title
@@ -46,9 +49,9 @@ class Recipe(models.Model):
     title = models.CharField(max_length=250)
     description = models.TextField()
     visability = models.CharField(max_length=1, choices=VISABILITY, default="1")
-    photo1 = models.ImageField(upload_to="images")
-    photo2 = models.ImageField(upload_to="images")
-    photo3 = models.ImageField(upload_to="images")
+    photo1 = ImageField(upload_to="images")
+    photo2 = ImageField(upload_to="images")
+    photo3 = ImageField(upload_to="images")
 
     def __unicode__(self):
         return self.title

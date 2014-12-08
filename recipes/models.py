@@ -1,5 +1,6 @@
 from django.db import models
 from sorl.thumbnail import ImageField
+from django.contrib.auth.models import User
 
 
 class Category(models.Model):
@@ -33,6 +34,14 @@ class ProductMeasurement(models.Model):
 
     def __unicode__(self):
         return self.product.title + " " + self.measurement.title + " " + str(self.value)
+
+
+class Fridge(models.Model):
+    user = models.ForeignKey(User)
+    products = models.ManyToManyField(ProductMeasurement)
+
+    def __unicode__(self):
+        return self.user.username + "' fridge"
 
 
 class Recipe(models.Model):

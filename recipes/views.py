@@ -44,3 +44,9 @@ def products(request):
         products = Product.objects.all()
 
     return render(request, "recipes/products.html", {"products": products})
+
+
+def measurements(request):
+    measurements = Measurement.objects.all()
+
+    return render(request, "recipes/measurements.html", {"measurements": measurements})

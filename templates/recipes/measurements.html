@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h3>Matavimo vienetai</h3>
+    <ul>
+    {% for measurement in measurements %}
+        <li>{{ measurement.title }} ({{ measurement.short_title }})</li>
+    {% endfor %}
+    </ul>
+    <a href="{% url 'add_measurement' %}" class="btn btn-info">Pridėti matavimo vienetą</a>
+{% endblock %}

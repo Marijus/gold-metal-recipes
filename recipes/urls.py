@@ -9,4 +9,5 @@ urlpatterns = patterns('',
                        url(r'^add-measurement/$', add_measurement, name='add_measurement'),
                        url(r'^add-product/$', add_product, name='add_product'),
                        url(r'^products/$', products, name='products'),
+                       url(r'^measurements/$', measurements, name='measurements'),
 )

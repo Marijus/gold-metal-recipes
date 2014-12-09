@@ -10,4 +10,5 @@ urlpatterns = patterns('',
                        url(r'^add-product/$', add_product, name='add_product'),
                        url(r'^products/$', products, name='products'),
                        url(r'^measurements/$', measurements, name='measurements'),
+                       url(r'^add-to-fridge/$', add_to_fridge, name='add_to_fridge'),
 )

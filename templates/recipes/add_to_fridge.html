@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h3>Pridėti į šaldytuvą</h3>
+    <form method="post" role="form">{% csrf_token %}
+        <div class="row">
+            <div class="form-group col-lg-3">
+                <label for="id_product">Produktas</label>
+                {{ form.product }}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group col-lg-3">
+                <label for="id_product">Kiekis</label>
+                {{ form.amount }}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group col-lg-2">
+                <label for="id_product">Matavimo vienetas</label>
+                {{ form.measurement }}
+            </div>
+        </div>
+
+        <input type="submit" class="btn btn-success" value="Pridėti"/>
+    </form>
+{% endblock %}
+
+{% comment %}
+form method="post" role="form"><input type='hidden' name='csrfmiddlewaretoken' value='eRuLoWhmAYL5kuYRx2GnoTaDrsfAZG6r' />
+        <p><label for="id_product">Product:</label> <select id="id_product" name="product">
+<option value="">---------</option>
+<option value="5">test</option>
+<option value="6">test</option>
+<option value="7">test</option>
+<option value="8">test</option>
+<option value="9">test</option>
+<option value="10">test</option>
+<option value="11" selected="selected">ne miltai</option>
+</select></p>
+<p><label for="id_amount">Amount:</label> <input id="id_amount" name="amount" step="0.01" type="number" /></p>
+<p><label for="id_measurement">Measurement:</label> <select id="id_measurement" name="measurement">
+<option value="" selected="selected">---------</option>
+<option value="1">kg</option>
+</select></p>
+    </form>{% endcomment %}

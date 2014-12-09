@@ -15,7 +15,7 @@ class Measurement(models.Model):
     short_title = models.CharField(max_length=10)
 
     def __unicode__(self):
-        return self.title
+        return self.title + " (" + self.short_title + ")"
 
 
 class Product(models.Model):

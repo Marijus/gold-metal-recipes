@@ -2,6 +2,7 @@ from django.db import models
 from sorl.thumbnail import ImageField
 from django.contrib.auth.models import User
 from django.template.defaultfilters import slugify
+from django.db import IntegrityError
 
 
 class Category(models.Model):
@@ -62,7 +63,7 @@ class Recipe(models.Model):
     user = models.ForeignKey(User, null=True, blank=True)
     category = models.ForeignKey(Category)
     title = models.CharField(max_length=250)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, editable=False)
     description = models.TextField()
     photo1 = ImageField(upload_to="images")
     photo2 = ImageField(upload_to="images", blank=True, null=True)
@@ -75,4 +76,9 @@ class Recipe(models.Model):
         if not self.slug:
             self.slug = slugify(self.title)
 
-        super(Recipe, self).save(*args, **kwargs)
+        try:
+            super(Recipe, self).save(*args, **kwargs)
+        except IntegrityError:
+            self.slug += "-" + str(self.id)
+        finally:
+            super(Recipe, self).save(*args, **kwargs)

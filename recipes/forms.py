@@ -25,6 +25,7 @@ class FridgeForm(forms.Form):
         self.fields['product'].queryset = Product.objects.all()
         self.fields['measurement'].queryset = Measurement.objects.all()
 
+
 class RecipeForm(forms.ModelForm):
     category = forms.ModelChoiceField(queryset=None, widget=forms.Select(attrs=attributes))
     title = forms.CharField(widget=forms.TextInput(attrs=attributes))
@@ -32,7 +33,7 @@ class RecipeForm(forms.ModelForm):
 
     class Meta:
         model = Recipe
-        exclude = ('products',)
+        exclude = ('slug',)
 
     def __init__(self, *args, **kwargs):
         super(RecipeForm, self).__init__(*args, **kwargs)

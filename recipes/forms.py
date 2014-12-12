@@ -1,7 +1,9 @@
-from recipes.models import Measurement, Product, Fridge
+from recipes.models import Measurement, Product, Recipe, Ingridient, Category
 
 from django import forms
+from django.forms.models import inlineformset_factory
 
+attributes = {'class': 'form-control'}
 
 class MeasurmentForm(forms.ModelForm):
     class Meta:
@@ -22,3 +24,32 @@ class FridgeForm(forms.Form):
         super(FridgeForm, self).__init__(*args, **kwargs)
         self.fields['product'].queryset = Product.objects.all()
         self.fields['measurement'].queryset = Measurement.objects.all()
+
+class RecipeForm(forms.ModelForm):
+    category = forms.ModelChoiceField(queryset=None, widget=forms.Select(attrs=attributes))
+    title = forms.CharField(widget=forms.TextInput(attrs=attributes))
+    description = forms.CharField(widget=forms.Textarea(attrs=attributes))
+
+    class Meta:
+        model = Recipe
+        exclude = ('products',)
+
+    def __init__(self, *args, **kwargs):
+        super(RecipeForm, self).__init__(*args, **kwargs)
+        self.fields['category'].queryset = Category.objects.all()
+        self.fields['photo2'].required = False
+        self.fields['photo3'].required = False
+
+
+class IngridientForm(forms.ModelForm):
+    product = forms.ModelChoiceField(queryset=None, widget=forms.Select(attrs={'class': 'form-control'}))
+    value = forms.DecimalField(decimal_places=2, widget=forms.NumberInput(attrs={'class': 'form-control'}))
+    measurement = forms.ModelChoiceField(queryset=None, widget=forms.Select(attrs={'class': 'form-control'}))
+
+    def __init__(self, *args, **kwargs):
+        super(IngridientForm, self).__init__(*args, **kwargs)
+        self.fields['product'].queryset = Product.objects.all()
+        self.fields['measurement'].queryset = Measurement.objects.all()
+
+
+IngredientFormSet = inlineformset_factory(Recipe, Ingridient, form=IngridientForm)

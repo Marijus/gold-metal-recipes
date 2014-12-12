@@ -1,1 +1,107 @@
 {% extends "base.html" %}
+{% load staticfiles %}
+
+{% block head %}
+    <link href="{% static "custom.css" %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+    <h1>Naujas receptas</h1>
+
+    <form method="post" role="form" enctype="multipart/form-data">{% csrf_token %}
+        {{ formset.management_form }}
+
+        {% if form.errors %}
+            <div class="alert alert-danger" role="alert">
+                {% for key, value in form.errors.items %}
+                    {{ key }} - {{ value }}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="row">
+            <div class="form-group col-lg-3 col-md-4 col-sm-5 col-xs-6">
+                <label for="id_category">Kategorija</label>
+                {{ form.category }}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group col-lg-3 col-md-4 col-sm-5 col-xs-6">
+                <label for="id_title">Pavadinimas</label>
+                {{ form.title }}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group col-lg-3 col-md-4 col-sm-5 col-xs-6">
+                <label for="id_description">Aprašymas</label>
+                {{ form.description }}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group col-lg-3 col-md-4 col-sm-5 col-xs-6">
+                <label for="id_photo1">Pagrindinė nuotrauka</label>
+                {{ form.photo1 }}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group col-lg-3 col-md-4 col-sm-5 col-xs-6">
+                <label for="id_photo2">Antroji nuotrauka</label>
+                {{ form.photo2 }}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group col-lg-3 col-md-4 col-sm-5 col-xs-6">
+                <label for="id_photo3">Trečioji nuotrauka</label>
+                {{ form.photo3 }}
+            </div>
+        </div>
+        <hr/>
+        <h3>Ingridientai:</h3>
+        {% for f in formset %}
+            <div class="formset-form">
+                <div class="row">
+                    <div class="form-group col-lg-3 col-md-4 col-sm-5 col-xs-6">
+                        {{ f.product }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-lg-3 col-md-4 col-sm-5 col-xs-6">
+                        {{ f.measurement }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-lg-3 col-md-4 col-sm-5 col-xs-6">
+                        {{ f.value }}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        <div class="row">
+            <div class="form-group col-lg-3 col-md-4 col-sm-5 col-xs-6">
+                <input type="submit" class="btn btn-success" value="Sukurti receptą">
+            </div>
+        </div>
+    </form>
+
+{% endblock %}
+
+{% block js %}
+    <script src="{% static "jquery.formset.js" %}"></script>
+    <script type="text/javascript">
+        $(function () {
+            $('.formset-form').formset({
+                prefix: '{{ formset.prefix }}',
+                "addCssClass": "btn btn-primary myBtn",
+                "deleteCssClass": "btn btn-danger myBtn",
+                "addText": "Pridėti ingridientą",
+                "deleteText": "Ištrinti"
+            });
+        })
+    </script>
+{% endblock %}

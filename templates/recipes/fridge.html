@@ -3,11 +3,12 @@
 {% load pagination_tags %}
 {% load recipe_tags %}
 
+
 {% block content %}
     <form role="search" method="get">
         <div class="input-group col-lg-6 col-lg-offset-3">
             <input type="text" class="form-control" id="query" name="query"
-                   placeholder="Ieškoti produktų pagal pavadinimą..">
+                   placeholder="Ieškoti produktų šaldytuve..">
 
             <div class="input-group-btn">
                 <button type="submit" class="btn btn-primary">
@@ -17,25 +18,22 @@
     </form>
     <br/>
 
-    {% autopaginate products 8 %}
-    {% for group in products|group_by:8 %}
+    {% autopaginate products 4 %}
+    {% for group in products|group_by:4 %}
 
         <div class="row-fluid">
             {% for product in group %}
 
                 <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
                     <div class="thumbnail">
-                        {% thumbnail product.photo "300x300" crop="center" as im %}
+                        {% thumbnail product.product.photo "300x300" crop="center" as im %}
                             <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
                         {% endthumbnail %}
                         <div class="caption">
-                            <h3>{{ product.title }}</h3>
+                            <h3>{{ product.product.title }}</h3>
+                            <p><strong>Kiekis:</strong> {{ product.value }} {{ product.measurement.short_title }}</p>
+                            <p>{{ product.product.description }}</p>
 
-                            <p>{{ product.description }}</p>
-
-                            <p>
-                                <a class="btn btn-success" href="{% url 'add_to_fridge' %}?product={{ product.id }}">Pridėti į šaldytuvą</a>
-                            </p>
                         </div>
                     </div>
                 </div>
@@ -43,8 +41,12 @@
             {% endfor %}
         </div>
     {% endfor %}
-    </div>
+
+        </div>
     <div class="text-center">
         {% paginate %}
     </div>
+
+
+
 {% endblock %}

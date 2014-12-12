@@ -1,6 +1,7 @@
 from django.db import models
 from sorl.thumbnail import ImageField
 from django.contrib.auth.models import User
+from django.template.defaultfilters import slugify
 
 
 class Category(models.Model):
@@ -36,6 +37,16 @@ class ProductMeasurement(models.Model):
         return self.product.title + " " + self.measurement.title + " " + str(self.value)
 
 
+class Ingridient(models.Model):
+    product = models.ForeignKey(Product)
+    measurement = models.ForeignKey(Measurement)
+    value = models.FloatField()
+    recipe = models.ForeignKey('Recipe')
+
+    def __unicode__(self):
+        return self.product.title + " " + self.measurement.title + " " + str(self.value)
+
+
 class Fridge(models.Model):
     user = models.ForeignKey(User)
     products = models.ManyToManyField(ProductMeasurement)
@@ -48,19 +59,20 @@ class Recipe(models.Model):
     """
         Recipe class that represents recipe model.
     """
-    VISABILITY = (
-        ("1", "public"),
-        ("0", 'private'),
-    )
-
+    user = models.ForeignKey(User, null=True, blank=True)
     category = models.ForeignKey(Category)
-    products = models.ManyToManyField(ProductMeasurement)
     title = models.CharField(max_length=250)
+    slug = models.SlugField(unique=True)
     description = models.TextField()
-    visability = models.CharField(max_length=1, choices=VISABILITY, default="1")
     photo1 = ImageField(upload_to="images")
-    photo2 = ImageField(upload_to="images")
-    photo3 = ImageField(upload_to="images")
+    photo2 = ImageField(upload_to="images", blank=True, null=True)
+    photo3 = ImageField(upload_to="images", blank=True, null=True)
 
     def __unicode__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+
+        super(Recipe, self).save(*args, **kwargs)

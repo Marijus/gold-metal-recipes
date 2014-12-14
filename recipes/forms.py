@@ -44,7 +44,7 @@ class RecipeForm(forms.ModelForm):
 
 class IngridientForm(forms.ModelForm):
     product = forms.ModelChoiceField(queryset=None, widget=forms.Select(attrs={'class': 'form-control'}))
-    value = forms.DecimalField(decimal_places=2, widget=forms.NumberInput(attrs={'class': 'form-control'}))
+    value = forms.DecimalField(decimal_places=2, widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Kiekis'}))
     measurement = forms.ModelChoiceField(queryset=None, widget=forms.Select(attrs={'class': 'form-control'}))
 
     def __init__(self, *args, **kwargs):

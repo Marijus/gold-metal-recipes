@@ -1,3 +1,11 @@
 .myBtn {
     margin-bottom: 15px;
 }
+
+.inner-item {
+    text-align: center;
+}
+
+.inner-item img{
+    margin: 0 auto;
+}

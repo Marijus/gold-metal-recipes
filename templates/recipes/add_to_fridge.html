@@ -4,21 +4,21 @@
     <h3>Pridėti į šaldytuvą</h3>
     <form method="post" role="form">{% csrf_token %}
         <div class="row">
-            <div class="form-group col-lg-3">
+            <div class="form-group col-lg-5">
                 <label for="id_product">Produktas</label>
                 {{ form.product }}
             </div>
         </div>
 
         <div class="row">
-            <div class="form-group col-lg-3">
+            <div class="form-group col-lg-5">
                 <label for="id_product">Kiekis</label>
                 {{ form.amount }}
             </div>
         </div>
 
         <div class="row">
-            <div class="form-group col-lg-2">
+            <div class="form-group col-lg-5">
                 <label for="id_product">Matavimo vienetas</label>
                 {{ form.measurement }}
             </div>

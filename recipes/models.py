@@ -3,6 +3,8 @@ from sorl.thumbnail import ImageField
 from django.contrib.auth.models import User
 from django.template.defaultfilters import slugify
 from django.db import IntegrityError
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 
 class Category(models.Model):
@@ -82,3 +84,48 @@ class Recipe(models.Model):
             self.slug += "-" + str(self.id)
         finally:
             super(Recipe, self).save(*args, **kwargs)
+
+    def match_with_fridge(self, fridge):
+        matches = list()
+        ingridients = Ingridient.objects.filter(recipe=self)
+        for ingridient in ingridients:
+            match = dict()
+            match["ingridient"] = ingridient
+            match["in_fridge"] = False
+            for item in fridge.products.all():
+                if item.product == ingridient.product:
+                    match["in_fridge"] = True
+                    match["missing"] = False
+                    match["item_in_fridge"] = item
+
+                    # Find missing amount
+                    if item.measurement == ingridient.measurement:
+                        if item.value < ingridient.value:
+                            match["missing"] = True
+                            match["missing_value"] = ingridient.value - item.value
+                    else:
+                        match["measurements_missmatch"] = True
+                        match["missing"] = True
+
+            matches.append(match)
+
+        return matches
+
+class Menu(models.Model):
+    user = models.ForeignKey(User)
+    recipes = models.ManyToManyField(Recipe)
+
+    def __unicode__(self):
+        return self.user.username + " menu"
+
+
+@receiver(pre_save, sender=User)
+def user_pre_save(sender, instance, *args, **kwargs):
+    if not Menu.objects.filter(user=instance).exists():
+        menu = Menu()
+        menu.user = instance
+        menu.save()
+    if not Fridge.objects.filter(user=instance).exists():
+        fridge = Fridge()
+        fridge.user = instance
+        fridge.save()

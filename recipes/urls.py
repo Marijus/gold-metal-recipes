@@ -12,4 +12,8 @@ urlpatterns = patterns('',
                        url(r'^measurements/$', measurements, name='measurements'),
                        url(r'^add-to-fridge/$', add_to_fridge, name='add_to_fridge'),
                        url(r'^fridge/$', fridge, name='fridge'),
+                       url(r'^recipe/(?P<slug>[-_\w]+)/$', recipe, name='recipe'),
+                       url(r'^recipes/$', recipes, name='recipes'),
+                       url(r'^add-to-menu/$', add_to_menu, name='add_to_menu'),
+                       url(r'^menu/$', menu, name='menu'),
 )

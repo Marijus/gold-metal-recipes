@@ -1,7 +1,8 @@
-from django.shortcuts import render, redirect
-from django.forms.models import inlineformset_factory
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 
-from recipes.models import Measurement, Product, ProductMeasurement, Fridge, Recipe, Ingridient
+from recipes.models import Measurement, Product, ProductMeasurement, Fridge, Recipe, Ingridient, Menu
 from recipes.forms import MeasurmentForm, ProductForm, FridgeForm, RecipeForm, IngredientFormSet
 from recipes.search import get_query
 
@@ -29,6 +30,23 @@ def add_recipe(request):
     return render(request, "recipes/add_recipe.html", {"form": form, "formset": formset})
 
 
+def recipe(request, slug):
+    recipe = get_object_or_404(Recipe, slug=slug)
+
+    return render(request, "recipes/recipe.html", {"recipe": recipe})
+
+
+def recipes(request):
+    if 'query' in request.GET and request.GET['query'].strip():
+        query = get_query(request.GET['query'], ['title'])
+        recipes = Recipe.objects.filter(query)
+    else:
+        recipes = Recipe.objects.all()
+
+    return render(request, "recipes/recipes.html", {"recipes": recipes})
+
+
+@login_required
 def add_measurement(request):
     if request.method == "POST":
         form = MeasurmentForm(request.POST)
@@ -68,6 +86,8 @@ def measurements(request):
 
     return render(request, "recipes/measurements.html", {"measurements": measurements})
 
+
+@login_required
 def add_to_fridge(request):
     if request.method == "POST":
         form = FridgeForm(request.POST)
@@ -82,12 +102,7 @@ def add_to_fridge(request):
 
             # check if user already has fridge
             # TODO: create fridge upon user creation
-            if Fridge.objects.filter(user=request.user).exists():
-                fridge = Fridge.objects.get(user=request.user)  # TODO: check if product already exists in fridge
-            else:
-                fridge = Fridge()
-                fridge.user = request.user
-                fridge.save()
+            fridge = Fridge.objects.get(user=request.user)  # TODO: check if product already exists in fridge
 
             # add product measurement to fridge
             fridge.products.add(pm)
@@ -101,6 +116,35 @@ def add_to_fridge(request):
             form = FridgeForm()
 
         return render(request, "recipes/add_to_fridge.html", {"form": form})
+
+
+@login_required
+def add_to_menu(request):
+    if request.method == "POST" and request.is_ajax():
+        try:
+            data = request.POST
+            recipe = get_object_or_404(Recipe, id=data["recipe_id"])
+            menu = Menu.objects.get(user=request.user)
+            menu.recipes.add(recipe)
+
+            return HttpResponse(200)
+        except:
+            return HttpResponse(500)
+
+    return HttpResponse(500)
+
+
+def menu(request):
+    menu = Menu.objects.get(user=request.user)
+    fridge = Fridge.objects.get(user=request.user)
+
+    recipes = dict()
+    for r in menu.recipes.all():
+        recipes[r] = r.match_with_fridge(fridge)
+
+    print recipes
+
+    return render(request, "recipes/menu.html", {"recipes": recipes})
 
 
 def fridge(request):

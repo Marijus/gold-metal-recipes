@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% load thumbnail %}
+{% load pagination_tags %}
+{% load recipe_tags %}
+{% load staticfiles %}
+
+{% block title %}
+    Receptai
+{% endblock %}
+
+{% block content %}
+    <div class="span7 text-center">
+        <button class="btn btn-primary" data-toggle="collapse" data-target="#filter-panel"><span
+                class="glyphicon glyphicon-cog"></span> Išplėstinė paieška
+        </button>
+    </div>
+    <br/>
+
+    <div class="row">
+        <div id="filter-panel" class="collapse filter-panel text-center">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <form class="form-inline" role="form">
+                        <!-- form group [rows] -->
+                        <div class="form-group">
+                            <label class="filter-col" for="query">Pagal pavadinimą:</label>
+                            <input type="text" class="form-control input-sm" id="query" name="query">
+                        </div>
+                        <!-- form group [search] -->
+                        <div class="form-group">
+                            <label class="filter-col" for="pref-orderby">Rikiuoti pagal:</label>
+                            <select id="orderby" name="orderby" class="form-control">
+                                <option disabled selected>Pasirinkite</option>
+                                <option value="rating">Įvertinima</option>
+                                <option value="date">Datą</option>
+                            </select>
+                        </div>
+                        <!-- form group [order by] -->
+                        <div class="form-group">
+                            <div class="checkbox" style="margin-left:10px; margin-right:10px;">
+                                <label><input id="can_make" name="can_make" type="checkbox"> Ką galiu
+                                    pasigaminti</label>
+                            </div>
+                            <button type="submit" class="btn btn-success filter-col">
+                                <span class="glyphicon glyphicon-search"></span> Ieškoti
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        {% autopaginate recipes 8 %}
+        {% for group in recipes|group_by:4 %}
+
+            <div class="row-fluid">
+                {% for recipe in group %}
+
+                    <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+                        <div class="thumbnail">
+                            {% thumbnail recipe.photo1 "300x300" crop="center" as im %}
+                                <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+                            {% endthumbnail %}
+                            <div class="caption">
+                                <h3>{{ recipe.title }}</h3>
+
+                                <p>
+                                    <a class="btn btn-success" href="{% url 'recipe' recipe.slug %}">Peržiūrėti</a>
+                                    <a class="btn btn-primary" onclick="addToMenu({{ recipe.id }});">Į valgiaraštį</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                {% endfor %}
+                <div class="clearfix visible-md visible-lg visible-xs"></div>
+            </div>
+        {% endfor %}
+    </div>
+    <div class="text-center">
+        {% paginate %}
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script type="text/javascript">
+        function addToMenu(recipe_id) {
+            $.post("{% url 'add_to_menu' %}", {"recipe_id": recipe_id, "csrfmiddlewaretoken": "{{ csrf_token }}"}, function (data) {
+                {#                Example.show("hi");#}
+                // TODO: add notification
+            });
+        }
+        function generate_rating(rating) {
+            var html = "";
+
+            for (i = 1; i <= 10; i++) {
+                if (i <= rating) {
+                    html += "<i class='glyphicon glyphicon-star'></i>";
+                } else {
+                    html += "<i class='glyphicon glyphicon-star-empty'></i>";
+                }
+            }
+
+            $("#rating_box").html(html);
+        }
+    </script>
+{% endblock %}

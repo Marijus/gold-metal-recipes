@@ -3,7 +3,7 @@ from sorl.thumbnail import ImageField
 from django.contrib.auth.models import User
 from django.template.defaultfilters import slugify
 from django.db import IntegrityError
-from django.db.models.signals import pre_save
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 
@@ -66,10 +66,12 @@ class Recipe(models.Model):
     category = models.ForeignKey(Category)
     title = models.CharField(max_length=250)
     slug = models.SlugField(unique=True, editable=False)
+    date = models.DateTimeField(auto_now=True, blank=True, null=True)
     description = models.TextField()
     photo1 = ImageField(upload_to="images")
     photo2 = ImageField(upload_to="images", blank=True, null=True)
     photo3 = ImageField(upload_to="images", blank=True, null=True)
+    overall_rating = models.IntegerField()
 
     def __unicode__(self):
         return self.title
@@ -111,6 +113,39 @@ class Recipe(models.Model):
 
         return matches
 
+    def can_make_from_fridge(self, fridge):
+        matches = self.match_with_fridge(fridge)
+
+        for match in matches:
+            if not match["in_fridge"] or match["missing"]:
+                return False
+
+        return True
+
+    def get_overall_rating(self):
+        ratings = [rating.rating for rating in Rating.objects.filter(recipe=self)]
+
+        if len(ratings) > 0:
+            return int(sum(ratings) / float(len(ratings)))
+
+        return 0
+
+
+
+class Rating(models.Model):
+    user = models.ForeignKey(User)
+    recipe = models.ForeignKey(Recipe)
+    rating = models.FloatField()
+
+    def __unicode__(self):
+        return self.user.username + " rating on " + self.recipe.title
+
+    def save(self, *args, **kwargs):
+        super(Rating, self).save(*args, **kwargs)
+        self.recipe.overall_rating = self.recipe.get_overall_rating()
+        self.recipe.save()
+
+
 class Menu(models.Model):
     user = models.ForeignKey(User)
     recipes = models.ManyToManyField(Recipe)
@@ -119,7 +154,7 @@ class Menu(models.Model):
         return self.user.username + " menu"
 
 
-@receiver(pre_save, sender=User)
+@receiver(post_save, sender=User)
 def user_pre_save(sender, instance, *args, **kwargs):
     if not Menu.objects.filter(user=instance).exists():
         menu = Menu()

@@ -83,11 +83,16 @@
                     {% endif %}
                 </ul>
 
-                <form class="navbar-form navbar-right" action="{% url 'recipes' %}" role="search">
-                    <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Ieškoti receptų">
+                <form id="navbar-search-form" class="navbar-form navbar-right" action="{% url 'recipes' %}" method="GET"
+                      role="search">
+                    <div class="input-group">
+                        <input id="query" name="query" type="text" class="form-control" placeholder="Ieškoti receptų">
+
+                        <div class="input-group-btn">
+                            <button type="submit" class="btn btn-primary"><span
+                                    class="glyphicon glyphicon-search"></span></button>
+                        </div>
                     </div>
-                    {#                    <button type="submit" class="btn btn-success">Ieškoti</button>#}
                 </form>
             </div>
         </div>
@@ -102,6 +107,11 @@
 {% block js %}
 
 {% endblock %}
-
+{#<script type="text/javascript">#}
+{#    $("#navbar-search-form").submit(function(event){#}
+{#        alert("hi");#}
+{#        window.location.href("/{% url 'recipes' %}?query=kasnio");#}
+{#    })#}
+{#</script>#}
 </body>
 </html>

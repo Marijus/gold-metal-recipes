@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% load thumbnail %}
+{% load staticfiles %}
+
+{% block head %}
+{% endblock %}
+
+{% block title %}
+    {{ recipe.title }}
+{% endblock %}
+{# TODO: FIX columnz #}
+{% block content %}
+    <h1 class="text-center">{{ recipe.title }}</h1>
+
+    <div class="container col-md-4">
+        <div class="col-lg-12">
+            <div class="thumbnail">
+                {% thumbnail recipe.photo1 "300x300" crop="center" as im %}
+                    <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+                {% endthumbnail %}
+            </div>
+        </div>
+        {% if recipe.photo2 %}
+            <div class="col-lg-6">
+                <div class="thumbnail">
+                    {% thumbnail recipe.photo2 "150x150" crop="center" as im %}
+                        <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+                    {% endthumbnail %}
+                </div>
+            </div>
+        {% endif %}
+        {% if recipe.photo3 %}
+            <div class="col-lg-6">
+                <div class="thumbnail">
+                    {% thumbnail recipe.photo3 "150x150" crop="center" as im %}
+                        <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+                    {% endthumbnail %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="container col-md-8">
+        <div class="col-lg-8">
+            <h3>Įkėlė:</h3>
+            <ul>
+                <li>{{ recipe.user.username }}</li>
+            </ul>
+            <h3>Įvertinimas</h3>
+
+            <div id="rating_box"></div>
+            <h3>Ingridientai:</h3>
+            <ul>
+                {% for match in matches %}
+                    <li>{{ match.ingridient.product.title }}
+                        - {{ match.ingridient.value }} {{ match.ingridient.measurement.short_title }}
+                        {% if match.in_fridge and not match.missing %}
+                            <span class="glyphicon glyphicon-ok text-success"></span>
+                        {% else %}
+                            <span class="glyphicon glyphicon-remove text-danger"></span>
+                            {% if match.item_in_fridge %}
+                                (Šaldytuve yra {{ match.item_in_fridge.value }}
+                                {{ match.item_in_fridge.measurement.short_title }})
+                            {% endif %}
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+            <h3>Aprašymas</h3>
+
+            <p>{{ recipe.description }}</p>
+
+            {% if request.user.is_authenticated %}
+                <button id="make_button" class="btn btn-success">Gaminti !</button>
+            {% endif %}
+
+            <div id="can_make">
+                <br/>
+
+                <p>Prašome įvertinti receptą. Įvertinus receptą produktai bus numinusuoti iš Jūsų šaldytuvo.</p>
+                <input class="rating" data-max="10" data-min="1" id="rating" name="rating" type="number"/>
+            </div>
+
+            <div id="cannot_make">
+                <p>Jūsų turimų produktų nepakanka pasigaminti šį receptą. Šaldytuvą galite papildyti <a
+                        href="{% url 'products' %}">produktų</a>
+                    skiltyje</p>
+            </div>
+
+        </div>
+    </div>
+
+
+{% endblock %}
+
+{% block js %}
+    <script src="{% static "bootstrap-rating.min.js" %}"></script>
+    <script type="text/javascript">
+        $("#can_make").hide();
+        $("#cannot_make").hide();
+        generate_rating({{ recipe.overall_rating }});
+
+        $("#make_button").click(function () {
+            $.post("{% url 'can_make_recipe' recipe.id %}", {"csrfmiddlewaretoken": "{{ csrf_token }}"}, function (data) {
+                if (data["can_make"]) {
+                    $("#can_make").show();
+                } else {
+                    $("#cannot_make").show();
+                }
+            });
+        });
+
+        $("#rating").change(function () {
+            var rating = $("#rating").val();
+            $.post("{% url 'rate_recipe' recipe.id %}", {"csrfmiddlewaretoken": "{{ csrf_token }}", "rating": rating}, function (data) {
+                generate_rating(data["new_rating"]);
+                $("#can_make").hide();
+            });
+        });
+
+        function generate_rating(rating) {
+            var html = "";
+
+            for (i = 1; i <= 10; i++) {
+                if (i <= rating) {
+                    html += "<i class='glyphicon glyphicon-star'></i>";
+                } else {
+                    html += "<i class='glyphicon glyphicon-star-empty'></i>";
+                }
+            }
+
+            $("#rating_box").html(html);
+        }
+    </script>
+{% endblock %}

@@ -18,7 +18,7 @@
     </form>
     <br/>
 
-    {% autopaginate products 4 %}
+    {% autopaginate products 8 %}
     {% for group in products|group_by:4 %}
 
         <div class="row-fluid">
@@ -39,6 +39,7 @@
                 </div>
 
             {% endfor %}
+            <div class="clearfix visible-md visible-lg visible-xs"></div>
         </div>
     {% endfor %}
 

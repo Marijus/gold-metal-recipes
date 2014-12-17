@@ -18,12 +18,11 @@
     <br/>
 
     {% autopaginate products 8 %}
-    {% for group in products|group_by:8 %}
+    {% for group in products|group_by:4 %}
 
         <div class="row-fluid">
             {% for product in group %}
-
-                <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+                <div class="col-md-3 col-xs-6">
                     <div class="thumbnail">
                         {% thumbnail product.photo "300x300" crop="center" as im %}
                             <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
@@ -39,11 +38,10 @@
                         </div>
                     </div>
                 </div>
-
             {% endfor %}
+            <div class="clearfix visible-md visible-lg visible-xs"></div>
         </div>
     {% endfor %}
-    </div>
     <div class="text-center">
         {% paginate %}
     </div>

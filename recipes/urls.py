@@ -16,4 +16,6 @@ urlpatterns = patterns('',
                        url(r'^recipes/$', recipes, name='recipes'),
                        url(r'^add-to-menu/$', add_to_menu, name='add_to_menu'),
                        url(r'^menu/$', menu, name='menu'),
+                       url(r'^recipe/(?P<id>\d+)/can_make/$', can_make_recipe, name='can_make_recipe'),
+                       url(r'^recipe/(?P<id>\d+)/rate/$', rate_recipe, name='rate_recipe'),
 )

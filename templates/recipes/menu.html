@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load thumbnail %}
+
+{% block title %}Valgiaraštis{% endblock %}
+
+{% block content %}
+    <h1 classž>Valgiaraštis</h1>
+    {% for recipe, matches in recipes.items %}
+        <div class="row">
+            <div class="col-lg-3">
+                <div class="thumbnail">
+                    {% thumbnail recipe.photo1 "300x300" crop="center" as im %}
+                        <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+                    {% endthumbnail %}
+                    <div class="caption">
+                        <h3>{{ recipe.title }}</h3>
+                        <a class="btn btn-success" href="{% url 'recipe' recipe.slug %}">Peržiūrėti</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <h3>Ingridientai:</h3>
+                <ul>
+                    {% for match in matches %}
+                        <li>{{ match.ingridient.product.title }}
+                            - {{ match.ingridient.value }} {{ match.ingridient.measurement }}
+                            {% if match.in_fridge and not match.missing %}
+                                <span class="glyphicon glyphicon-ok text-success"></span>
+                            {% else %}
+                                <span class="glyphicon glyphicon-remove text-danger"></span>
+                                {% if match.item_in.fridge %}
+                                    (Šaldytuve yra {{ match.item_in_fridge.value }} {{ match.item_in_fridge.measurement.short_title }})
+                                {% endif %}
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}

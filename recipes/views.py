@@ -1,10 +1,13 @@
+import json
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 
-from recipes.models import Measurement, Product, ProductMeasurement, Fridge, Recipe, Ingridient, Menu
+from recipes.models import Measurement, Product, ProductMeasurement, Fridge, Recipe, Ingridient, Menu, Rating
 from recipes.forms import MeasurmentForm, ProductForm, FridgeForm, RecipeForm, IngredientFormSet
 from recipes.search import get_query
+
 
 def index(request):
     return render(request, "base.html")
@@ -32,16 +35,79 @@ def add_recipe(request):
 
 def recipe(request, slug):
     recipe = get_object_or_404(Recipe, slug=slug)
+    fridge = Fridge.objects.get(user=request.user)
+    matches = recipe.match_with_fridge(fridge)
 
-    return render(request, "recipes/recipe.html", {"recipe": recipe})
+    return render(request, "recipes/recipe.html", {"recipe": recipe,
+                                                   "matches": matches})
+
+
+def can_make_recipe(request, id):
+    if request.is_ajax():
+        try:
+            response_dict = {
+                "can_make": Recipe.objects.get(id=id).can_make_from_fridge(Fridge.objects.get(user=request.user))}
+
+            return HttpResponse(json.dumps(response_dict), mimetype='application/json')
+        except Exception, err:
+            return HttpResponse(500)
+    else:
+        return HttpResponse(500)
+
+
+def rate_recipe(request, id):
+    if request.is_ajax() and request.method == "POST" and "rating" in request.POST:
+        try:
+            recipe = Recipe.objects.get(id=id)
+            fridge = Fridge.objects.get(user=request.user)
+
+            # Create rating
+            if Rating.objects.filter(user=request.user, recipe=recipe).exists():
+                rating = Rating.objects.get(user=request.user, recipe=recipe)
+                rating.rating = request.POST["rating"]
+                rating.save()
+            else:
+                rating = Rating()
+                rating.recipe = recipe
+                rating.user = request.user
+                rating.rating = request.POST["rating"]
+                rating.save()
+
+            # Remove recipes' ingridients from fridge
+            for ingridient in Ingridient.objects.filter(recipe=recipe):
+                for item in fridge.products.all():
+                    if item.product == ingridient.product:
+                        if ingridient.value < item.value:
+                            item.value -= ingridient.value
+                            item.save()
+                        else:
+                            item.delete()
+                        break
+
+
+            response_dict = {"new_rating": recipe.get_overall_rating()}
+            return HttpResponse(json.dumps(response_dict), mimetype='application/json')
+        except Exception, err:
+            return HttpResponse(500)
+
+    return HttpResponse(500)
 
 
 def recipes(request):
+    recipes = Recipe.objects.filter()
+    fridge = Fridge.objects.get(user=request.user)
+
     if 'query' in request.GET and request.GET['query'].strip():
         query = get_query(request.GET['query'], ['title'])
-        recipes = Recipe.objects.filter(query)
-    else:
-        recipes = Recipe.objects.all()
+        recipes = recipes.filter(query)
+    if 'can_make' in request.GET:
+        recipes = [recipe for recipe in recipes if recipe.can_make_from_fridge(fridge)]
+    if "orderby" in request.GET:
+        selected_option = request.GET["orderby"]
+        if selected_option == "rating":
+            recipes = recipes.order_by('-rating')
+        elif selected_option == "date":
+            recipes = recipes.order_by('-date')
 
     return render(request, "recipes/recipes.html", {"recipes": recipes})
 
@@ -53,7 +119,7 @@ def add_measurement(request):
         new_measurement = form.save()
 
         return render(request, "recipes/add_measurement.html", {"form": MeasurmentForm(),
-                                                               "success": True})
+                                                                "success": True})
 
     form = MeasurmentForm()
 
@@ -141,8 +207,6 @@ def menu(request):
     recipes = dict()
     for r in menu.recipes.all():
         recipes[r] = r.match_with_fridge(fridge)
-
-    print recipes
 
     return render(request, "recipes/menu.html", {"recipes": recipes})
 

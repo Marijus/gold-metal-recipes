@@ -8,6 +8,11 @@
     Receptai
 {% endblock %}
 
+{% block head %}
+    <link href="{% static 'pnotify.custom.min.css' %}" rel="stylesheet">
+    <script src="{% static "pnotify.custom.min.js" %}"></script>
+{% endblock %}
+
 {% block content %}
     <div class="span7 text-center">
         <button class="btn btn-primary" data-toggle="collapse" data-target="#filter-panel"><span
@@ -37,10 +42,12 @@
                         </div>
                         <!-- form group [order by] -->
                         <div class="form-group">
-                            <div class="checkbox" style="margin-left:10px; margin-right:10px;">
-                                <label><input id="can_make" name="can_make" type="checkbox"> Ką galiu
-                                    pasigaminti</label>
-                            </div>
+                            {% if request.user.is_authenticated %}
+                                <div class="checkbox" style="margin-left:10px; margin-right:10px;">
+                                    <label><input id="can_make" name="can_make" type="checkbox"> Ką galiu
+                                        pasigaminti</label>
+                                </div>
+                            {% endif %}
                             <button type="submit" class="btn btn-success filter-col">
                                 <span class="glyphicon glyphicon-search"></span> Ieškoti
                             </button>
@@ -64,6 +71,8 @@
                             <div class="caption">
                                 <h3>{{ recipe.title }}</h3>
 
+                                <div id="rating-box-{{ recipe.id }}"></div>
+
                                 <p>
                                     <a class="btn btn-success" href="{% url 'recipe' recipe.slug %}">Peržiūrėti</a>
                                     <a class="btn btn-primary" onclick="addToMenu({{ recipe.id }});">Į valgiaraštį</a>
@@ -86,11 +95,15 @@
     <script type="text/javascript">
         function addToMenu(recipe_id) {
             $.post("{% url 'add_to_menu' %}", {"recipe_id": recipe_id, "csrfmiddlewaretoken": "{{ csrf_token }}"}, function (data) {
-                {#                Example.show("hi");#}
-                // TODO: add notification
+                new PNotify({
+                    title: 'Valgiaraštis',
+                    text: 'Receptas sėkmingai buvo pridėtas į <a href="{% url 'menu' %}"><strong>valgiaraštį</strong></a>.',
+                    delay: 3000
+                });
             });
         }
-        function generate_rating(rating) {
+
+        function generate_rating(div, rating) {
             var html = "";
 
             for (i = 1; i <= 10; i++) {
@@ -101,7 +114,11 @@
                 }
             }
 
-            $("#rating_box").html(html);
+            $(div).html(html);
         }
+
+        {% for recipe in recipes %}
+            generate_rating("#rating-box-" + "{{ recipe.id }}", {{ recipe.overall_rating }});
+        {% endfor %}
     </script>
 {% endblock %}

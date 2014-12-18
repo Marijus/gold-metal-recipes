@@ -18,4 +18,6 @@ urlpatterns = patterns('',
                        url(r'^menu/$', menu, name='menu'),
                        url(r'^recipe/(?P<id>\d+)/can_make/$', can_make_recipe, name='can_make_recipe'),
                        url(r'^recipe/(?P<id>\d+)/rate/$', rate_recipe, name='rate_recipe'),
+                       url(r'^remove-from-fridge/(?P<id>\d+)/$', remove_from_fridge, name='remove_from_fridge'),
+                       url(r'^remove-from-menu/(?P<id>\d+)/$', remove_from_menu, name='remove_from_menu'),
 )

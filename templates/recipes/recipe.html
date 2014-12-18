@@ -87,6 +87,10 @@
                     skiltyje</p>
             </div>
 
+            <div id="removed_from_fridge">
+                <p>Ingridientai buvo sėkmingai numinusuoti iš šaldytuvo produktų.</p>
+            </div>
+
         </div>
     </div>
 
@@ -98,6 +102,7 @@
     <script type="text/javascript">
         $("#can_make").hide();
         $("#cannot_make").hide();
+        $("#removed_from_fridge").hide();
         generate_rating({{ recipe.overall_rating }});
 
         $("#make_button").click(function () {
@@ -115,6 +120,7 @@
             $.post("{% url 'rate_recipe' recipe.id %}", {"csrfmiddlewaretoken": "{{ csrf_token }}", "rating": rating}, function (data) {
                 generate_rating(data["new_rating"]);
                 $("#can_make").hide();
+                $("#removed_from_fridge").show();
             });
         });
 

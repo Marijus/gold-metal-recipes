@@ -7,13 +7,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 
-class Category(models.Model):
-    title = models.CharField(max_length=250)
-
-    def __unicode__(self):
-        return self.title
-
-
 class Measurement(models.Model):
     title = models.CharField(max_length=250)
     short_title = models.CharField(max_length=10)
@@ -63,7 +56,6 @@ class Recipe(models.Model):
         Recipe class that represents recipe model.
     """
     user = models.ForeignKey(User, null=True, blank=True)
-    category = models.ForeignKey(Category)
     title = models.CharField(max_length=250)
     slug = models.SlugField(unique=True, editable=False)
     date = models.DateTimeField(auto_now=True, blank=True, null=True)
@@ -71,7 +63,7 @@ class Recipe(models.Model):
     photo1 = ImageField(upload_to="images")
     photo2 = ImageField(upload_to="images", blank=True, null=True)
     photo3 = ImageField(upload_to="images", blank=True, null=True)
-    overall_rating = models.IntegerField()
+    overall_rating = models.IntegerField(default=0)
 
     def __unicode__(self):
         return self.title
@@ -129,7 +121,6 @@ class Recipe(models.Model):
             return int(sum(ratings) / float(len(ratings)))
 
         return 0
-
 
 
 class Rating(models.Model):

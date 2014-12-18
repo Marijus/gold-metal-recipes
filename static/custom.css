@@ -9,3 +9,7 @@
 .inner-item img{
     margin: 0 auto;
 }
+
+.panel-info>.panel-heading {
+    background-color: #93c54b !important;
+}

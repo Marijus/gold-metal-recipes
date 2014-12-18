@@ -10,7 +10,7 @@ from recipes.search import get_query
 
 
 def index(request):
-    return render(request, "base.html")
+    return render(request, "recipes/index.html")
 
 
 def add_recipe(request):
@@ -24,10 +24,12 @@ def add_recipe(request):
             if formset.is_valid():
                 new_recipe.save()
                 formset.save()
+                print "hi"
 
-        print "success"
+            return redirect('recipes.views.recipe', slug=new_recipe.slug)
+    else:
+        form = RecipeForm()
 
-    form = RecipeForm()
     formset = IngredientFormSet(instance=Recipe())
 
     return render(request, "recipes/add_recipe.html", {"form": form, "formset": formset})
@@ -84,7 +86,6 @@ def rate_recipe(request, id):
                             item.delete()
                         break
 
-
             response_dict = {"new_rating": recipe.get_overall_rating()}
             return HttpResponse(json.dumps(response_dict), mimetype='application/json')
         except Exception, err:
@@ -95,12 +96,12 @@ def rate_recipe(request, id):
 
 def recipes(request):
     recipes = Recipe.objects.filter()
-    fridge = Fridge.objects.get(user=request.user)
 
     if 'query' in request.GET and request.GET['query'].strip():
         query = get_query(request.GET['query'], ['title'])
         recipes = recipes.filter(query)
     if 'can_make' in request.GET:
+        fridge = Fridge.objects.get(user=request.user)
         recipes = [recipe for recipe in recipes if recipe.can_make_from_fridge(fridge)]
     if "orderby" in request.GET:
         selected_option = request.GET["orderby"]
@@ -159,20 +160,22 @@ def add_to_fridge(request):
         form = FridgeForm(request.POST)
 
         if form.is_valid():
-            # create product measurement
-            pm = ProductMeasurement()
-            pm.product = form.cleaned_data["product"]
-            pm.value = form.cleaned_data["amount"]
-            pm.measurement = form.cleaned_data["measurement"]
-            pm.save()
+            fridge = Fridge.objects.get(user=request.user)
 
-            # check if user already has fridge
-            # TODO: create fridge upon user creation
-            fridge = Fridge.objects.get(user=request.user)  # TODO: check if product already exists in fridge
-
-            # add product measurement to fridge
-            fridge.products.add(pm)
-            fridge.save()
+            if ProductMeasurement.objects.filter(fridge=fridge, product=form.cleaned_data["product"],
+                                                 measurement=form.cleaned_data["measurement"]).exists():
+                pm = ProductMeasurement.objects.get(fridge=fridge, product=form.cleaned_data["product"],
+                                                    measurement=form.cleaned_data["measurement"])
+                pm.value += form.cleaned_data["amount"]
+                pm.save()
+            else:
+                pm = ProductMeasurement()
+                pm.product = form.cleaned_data["product"]
+                pm.value = form.cleaned_data["amount"]
+                pm.measurement = form.cleaned_data["measurement"]
+                pm.save()
+                fridge.products.add(pm)
+                fridge.save()
 
             return redirect('recipes.views.products')
     else:
@@ -182,6 +185,24 @@ def add_to_fridge(request):
             form = FridgeForm()
 
         return render(request, "recipes/add_to_fridge.html", {"form": form})
+
+
+@login_required
+def remove_from_fridge(request, id):
+    product_measurement = get_object_or_404(ProductMeasurement, id=id)
+    product_measurement.delete()
+
+    return redirect('recipes.views.fridge')
+
+
+@login_required
+def remove_from_menu(request, id):
+    recipe = get_object_or_404(Recipe, id=id)
+    menu = get_object_or_404(Menu, user=request.user)
+
+    menu.recipes.remove(recipe)
+
+    return redirect('recipes.views.menu')
 
 
 @login_required
@@ -200,6 +221,7 @@ def add_to_menu(request):
     return HttpResponse(500)
 
 
+@login_required
 def menu(request):
     menu = Menu.objects.get(user=request.user)
     fridge = Fridge.objects.get(user=request.user)
@@ -211,6 +233,7 @@ def menu(request):
     return render(request, "recipes/menu.html", {"recipes": recipes})
 
 
+@login_required
 def fridge(request):
     fridge = Fridge.objects.get(user=request.user)
     products = fridge.products.all()

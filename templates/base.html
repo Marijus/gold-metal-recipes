@@ -8,6 +8,7 @@
     <title>{% block title %}{% endblock %} KuPRA</title>
 
     <link href="//netdna.bootstrapcdn.com/bootswatch/3.0.0/cosmo/bootstrap.min.css" rel="stylesheet">
+    <link href="{% static 'custom.css' %}" rel="stylesheet">
 
     <!-- Bootstrap -->
     <link href="{% static "bootstrap7.min.css" %}" rel="stylesheet">
@@ -31,7 +32,7 @@
     <nav class="navbar navbar-default navbar-inverse navbar-static-top navbar-collapse" role="navigation">
         <div class="container">
             <div class="navbar-header">
-                <a href="#" class="navbar-brand">KuPRA</a>
+                <a href="{% url 'index' %}" class="navbar-brand">KuPRA</a>
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
@@ -101,6 +102,11 @@
         {% block content %}
             test
         {% endblock %}
+        <!-- Site footer -->
+        <hr/>
+        <footer class="footer text-center">
+            <p>&copy; <i>Gold Metal 2014</i> <a href="https://github.com/Marijus/gold-metal-recipes">Github</a></p>
+        </footer>
     </div>
 {% endblock %}
 

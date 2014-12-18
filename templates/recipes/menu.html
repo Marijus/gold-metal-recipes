@@ -5,6 +5,7 @@
 
 {% block content %}
     <h1 classž>Valgiaraštis</h1>
+    {% if recipes.items %}
     {% for recipe, matches in recipes.items %}
         <div class="row">
             <div class="col-lg-3">
@@ -15,6 +16,7 @@
                     <div class="caption">
                         <h3>{{ recipe.title }}</h3>
                         <a class="btn btn-success" href="{% url 'recipe' recipe.slug %}">Peržiūrėti</a>
+                        <a class="btn btn-danger" href="{% url 'remove_from_menu' recipe.id %}">Ištrinti</a>
                     </div>
                 </div>
             </div>
@@ -38,4 +40,7 @@
             </div>
         </div>
     {% endfor %}
+    {% else %}
+        <p>Jūsų valgiaraštyje kol kas nėra <a href="{% url 'recipes' %}">receptų</a></p>
+    {% endif %}
 {% endblock %}

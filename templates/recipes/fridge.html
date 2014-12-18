@@ -18,36 +18,42 @@
     </form>
     <br/>
 
-    {% autopaginate products 8 %}
-    {% for group in products|group_by:4 %}
+    {% if products %}
+        {% autopaginate products 8 %}
+        {% for group in products|group_by:4 %}
 
-        <div class="row-fluid">
-            {% for product in group %}
+            <div class="row-fluid">
+                {% for product in group %}
 
-                <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
-                    <div class="thumbnail">
-                        {% thumbnail product.product.photo "300x300" crop="center" as im %}
-                            <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
-                        {% endthumbnail %}
-                        <div class="caption">
-                            <h3>{{ product.product.title }}</h3>
-                            <p><strong>Kiekis:</strong> {{ product.value }} {{ product.measurement.short_title }}</p>
-                            <p>{{ product.product.description }}</p>
+                    <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+                        <div class="thumbnail">
+                            {% thumbnail product.product.photo "300x300" crop="center" as im %}
+                                <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+                            {% endthumbnail %}
+                            <div class="caption">
+                                <h3>{{ product.product.title }}</h3>
 
+                                <p><strong>Kiekis:</strong> {{ product.value }} {{ product.measurement.short_title }}
+                                </p>
+
+                                <p>{{ product.product.description }}</p>
+                                <a href="{% url 'remove_from_fridge' product.id %}" class="btn btn-danger">Ištrinti</a>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-            {% endfor %}
-            <div class="clearfix visible-md visible-lg visible-xs"></div>
+                {% endfor %}
+                <div class="clearfix visible-md visible-lg visible-xs"></div>
+            </div>
+        {% endfor %}
+
         </div>
-    {% endfor %}
-
+        <div class="text-center">
+            {% paginate %}
         </div>
-    <div class="text-center">
-        {% paginate %}
-    </div>
-
+    {% else %}
+        <p>Kol kas šaldytuve nėra <a href="{% url 'products' %}">produktų.</a></p>
+    {% endif %}
 
 
 {% endblock %}

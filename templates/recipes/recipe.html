@@ -8,7 +8,6 @@
 {% block title %}
     {{ recipe.title }}
 {% endblock %}
-{# TODO: FIX columnz #}
 {% block content %}
     <h1 class="text-center">{{ recipe.title }}</h1>
 
@@ -53,7 +52,7 @@
             <ul>
                 {% for match in matches %}
                     <li>{{ match.ingridient.product.title }}
-                        - {{ match.ingridient.value }} {{ match.ingridient.measurement.short_title }}
+                        - {{ match.ingridient_value }} {{ match.ingridient.measurement.short_title }}
                         {% if match.in_fridge and not match.missing %}
                             <span class="glyphicon glyphicon-ok text-success"></span>
                         {% else %}
@@ -70,6 +69,9 @@
 
             <p>{{ recipe.description }}</p>
 
+            <div class="form-group col-lg-3">
+                <input id="portions" type="number" class="form-control" min="1" value="{{ portions }}" step="1"/>
+            </div>
             {% if request.user.is_authenticated %}
                 <button id="make_button" class="btn btn-success">Gaminti !</button>
             {% endif %}
@@ -104,6 +106,11 @@
         $("#cannot_make").hide();
         $("#removed_from_fridge").hide();
         generate_rating({{ recipe.overall_rating }});
+
+        $("#portions").change(function(){
+            var new_val = $("#portions").val();
+            window.location.replace("{% url 'recipe' recipe.slug %}?portions=" + new_val);
+        });
 
         $("#make_button").click(function () {
             $.post("{% url 'can_make_recipe' recipe.id %}", {"csrfmiddlewaretoken": "{{ csrf_token }}"}, function (data) {

@@ -4,8 +4,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 
-from recipes.models import Measurement, Product, ProductMeasurement, Fridge, Recipe, Ingridient, Menu, Rating
-from recipes.forms import MeasurmentForm, ProductForm, FridgeForm, RecipeForm, IngredientFormSet
+from recipes.models import Measurement, Product, ProductMeasurement, Fridge, Recipe, Ingridient, Menu, Rating, MenuItem
+from recipes.forms import MeasurmentForm, ProductForm, FridgeForm, RecipeForm, IngredientFormSet, MenuForm
 from recipes.search import get_query
 
 
@@ -36,12 +36,21 @@ def add_recipe(request):
 
 
 def recipe(request, slug):
+    context = dict()
     recipe = get_object_or_404(Recipe, slug=slug)
     fridge = Fridge.objects.get(user=request.user)
-    matches = recipe.match_with_fridge(fridge)
 
-    return render(request, "recipes/recipe.html", {"recipe": recipe,
-                                                   "matches": matches})
+    if "portions" in request.GET:
+        matches = recipe.match_with_fridge(fridge, int(request.GET["portions"]))
+        context["portions"] = int(request.GET["portions"])
+    else:
+        matches = recipe.match_with_fridge(fridge)
+        context["portions"] = 1
+
+    context["matches"] = matches
+    context["recipe"] = recipe
+
+    return render(request, "recipes/recipe.html", context)
 
 
 def can_make_recipe(request, id):
@@ -188,6 +197,32 @@ def add_to_fridge(request):
 
 
 @login_required
+def add_to_menu(request):
+    if request.method == "POST":
+        form = MenuForm(request.POST)
+        if form.is_valid():
+            menu = Menu.objects.get(user=request.user)
+
+            # create menu item
+            menu_item = MenuItem()
+            menu_item.recipe = form.cleaned_data["recipe"]
+            menu_item.date = form.cleaned_data["date"]
+            menu_item.portions = form.cleaned_data["portions"]
+            menu_item.menu = menu
+            menu_item.save()
+
+            return redirect('recipes.views.menu')
+    else:
+        if "recipe" in request.GET:
+            form = MenuForm(initial={"recipe": Recipe.objects.get(id=request.GET["recipe"]),
+                                     "portions": 1})
+        else:
+            form = MenuForm
+
+        return render(request, "recipes/add_to_menu.html", {"form": form})
+
+
+@login_required
 def remove_from_fridge(request, id):
     product_measurement = get_object_or_404(ProductMeasurement, id=id)
     product_measurement.delete()
@@ -197,28 +232,25 @@ def remove_from_fridge(request, id):
 
 @login_required
 def remove_from_menu(request, id):
-    recipe = get_object_or_404(Recipe, id=id)
-    menu = get_object_or_404(Menu, user=request.user)
-
-    menu.recipes.remove(recipe)
+    MenuItem.objects.get(id=id).delete()
 
     return redirect('recipes.views.menu')
 
 
-@login_required
-def add_to_menu(request):
-    if request.method == "POST" and request.is_ajax():
-        try:
-            data = request.POST
-            recipe = get_object_or_404(Recipe, id=data["recipe_id"])
-            menu = Menu.objects.get(user=request.user)
-            menu.recipes.add(recipe)
-
-            return HttpResponse(200)
-        except:
-            return HttpResponse(500)
-
-    return HttpResponse(500)
+# @login_required
+# def add_to_menu(request):
+#     if request.method == "POST" and request.is_ajax():
+#         try:
+#             data = request.POST
+#             recipe = get_object_or_404(Recipe, id=data["recipe_id"])
+#             menu = Menu.objects.get(user=request.user)
+#             menu.recipes.add(recipe)
+#
+#             return HttpResponse(200)
+#         except:
+#             return HttpResponse(500)
+#
+#     return HttpResponse(500)
 
 
 @login_required
@@ -227,8 +259,8 @@ def menu(request):
     fridge = Fridge.objects.get(user=request.user)
 
     recipes = dict()
-    for r in menu.recipes.all():
-        recipes[r] = r.match_with_fridge(fridge)
+    for r in MenuItem.objects.filter(menu=menu):
+        recipes[r] = r.match_with_fridge(fridge, r.portions)
 
     return render(request, "recipes/menu.html", {"recipes": recipes})
 

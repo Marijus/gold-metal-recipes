@@ -79,12 +79,13 @@ class Recipe(models.Model):
         finally:
             super(Recipe, self).save(*args, **kwargs)
 
-    def match_with_fridge(self, fridge):
+    def match_with_fridge(self, fridge, portions=1):
         matches = list()
         ingridients = Ingridient.objects.filter(recipe=self)
         for ingridient in ingridients:
             match = dict()
             match["ingridient"] = ingridient
+            match["ingridient_value"] = ingridient.value * portions
             match["in_fridge"] = False
             for item in fridge.products.all():
                 if item.product == ingridient.product:
@@ -94,7 +95,7 @@ class Recipe(models.Model):
 
                     # Find missing amount
                     if item.measurement == ingridient.measurement:
-                        if item.value < ingridient.value:
+                        if item.value < ingridient.value * portions:
                             match["missing"] = True
                             match["missing_value"] = ingridient.value - item.value
                     else:
@@ -105,8 +106,8 @@ class Recipe(models.Model):
 
         return matches
 
-    def can_make_from_fridge(self, fridge):
-        matches = self.match_with_fridge(fridge)
+    def can_make_from_fridge(self, fridge, portions=1):
+        matches = self.match_with_fridge(fridge, portions)
 
         for match in matches:
             if not match["in_fridge"] or match["missing"]:
@@ -139,10 +140,22 @@ class Rating(models.Model):
 
 class Menu(models.Model):
     user = models.ForeignKey(User)
-    recipes = models.ManyToManyField(Recipe)
 
     def __unicode__(self):
         return self.user.username + " menu"
+
+
+class MenuItem(models.Model):
+    recipe = models.ForeignKey(Recipe)
+    menu = models.ForeignKey(Menu)
+    date = models.DateField()
+    portions = models.IntegerField(default=1)
+
+    def __unicode__(self):
+        return self.recipe.title + " in" + self.menu.user.username + "' menu"
+
+    def match_with_fridge(self, fridge, portions):
+        return self.recipe.match_with_fridge(fridge, portions)
 
 
 @receiver(post_save, sender=User)

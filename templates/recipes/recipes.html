@@ -75,7 +75,7 @@
 
                                 <p>
                                     <a class="btn btn-success" href="{% url 'recipe' recipe.slug %}">Peržiūrėti</a>
-                                    <a class="btn btn-primary" onclick="addToMenu({{ recipe.id }});">Į valgiaraštį</a>
+                                    <a class="btn btn-primary" href="{% url 'add_to_menu' %}?recipe={{ recipe.id }}">Į valgiaraštį</a>
                                 </p>
                             </div>
                         </div>

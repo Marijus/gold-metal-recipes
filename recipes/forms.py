@@ -26,6 +26,18 @@ class FridgeForm(forms.Form):
         self.fields['measurement'].queryset = Measurement.objects.all()
 
 
+class MenuForm(forms.Form):
+    recipe = forms.ModelChoiceField(queryset=None, widget=forms.Select(attrs=attributes))
+    date = forms.DateField(widget=forms.DateInput(attrs={"class": "form-control datepicker"}))
+    portions = forms.IntegerField(widget=forms.NumberInput(attrs={"class": "form-control",
+                                                                  "min": 1,
+                                                                  "step": 1}))
+
+    def __init__(self, *args, **kwargs):
+        super(MenuForm, self).__init__(*args, **kwargs)
+        self.fields['recipe'].queryset = Recipe.objects.all()
+
+
 class RecipeForm(forms.ModelForm):
     title = forms.CharField(widget=forms.TextInput(attrs=attributes))
     description = forms.CharField(widget=forms.Textarea(attrs=attributes))

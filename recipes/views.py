@@ -13,6 +13,7 @@ def index(request):
     return render(request, "recipes/index.html")
 
 
+@login_required
 def add_recipe(request):
     if request.method == "POST":
         form = RecipeForm(request.POST, request.FILES)
@@ -38,7 +39,11 @@ def add_recipe(request):
 def recipe(request, slug):
     context = dict()
     recipe = get_object_or_404(Recipe, slug=slug)
-    fridge = Fridge.objects.get(user=request.user)
+
+    if request.user.is_authenticated():
+        fridge = Fridge.objects.get(user=request.user)
+    else:
+        fridge = None
 
     if "portions" in request.GET:
         matches = recipe.match_with_fridge(fridge, int(request.GET["portions"]))
@@ -53,11 +58,13 @@ def recipe(request, slug):
     return render(request, "recipes/recipe.html", context)
 
 
+@login_required
 def can_make_recipe(request, id):
     if request.is_ajax():
         try:
             response_dict = {
-                "can_make": Recipe.objects.get(id=id).can_make_from_fridge(Fridge.objects.get(user=request.user))}
+                "can_make": Recipe.objects.get(id=id).can_make_from_fridge(Fridge.objects.get(user=request.user),
+                                                                           int(request.POST["portions"]))}
 
             return HttpResponse(json.dumps(response_dict), mimetype='application/json')
         except Exception, err:
@@ -66,6 +73,7 @@ def can_make_recipe(request, id):
         return HttpResponse(500)
 
 
+@login_required
 def rate_recipe(request, id):
     if request.is_ajax() and request.method == "POST" and "rating" in request.POST:
         try:
@@ -85,10 +93,12 @@ def rate_recipe(request, id):
                 rating.save()
 
             # Remove recipes' ingridients from fridge
+            portions = int(request.POST["portions"])
+
             for ingridient in Ingridient.objects.filter(recipe=recipe):
                 for item in fridge.products.all():
                     if item.product == ingridient.product:
-                        if ingridient.value < item.value:
+                        if ingridient.value * portions < item.value:
                             item.value -= ingridient.value
                             item.save()
                         else:
@@ -136,6 +146,7 @@ def add_measurement(request):
     return render(request, "recipes/add_measurement.html", {"form": form})
 
 
+@login_required
 def add_product(request):
     context = {"form": ProductForm}
 
@@ -239,8 +250,8 @@ def remove_from_menu(request, id):
 
 # @login_required
 # def add_to_menu(request):
-#     if request.method == "POST" and request.is_ajax():
-#         try:
+# if request.method == "POST" and request.is_ajax():
+# try:
 #             data = request.POST
 #             recipe = get_object_or_404(Recipe, id=data["recipe_id"])
 #             menu = Menu.objects.get(user=request.user)
@@ -271,3 +282,42 @@ def fridge(request):
     products = fridge.products.all()
 
     return render(request, "recipes/fridge.html", {"products": products})
+
+
+@login_required
+def shopping_list(request):
+    menu = get_object_or_404(Menu, user=request.user)
+    fridge = get_object_or_404(Fridge, user=request.user)
+    menu_items = [recipe.recipe.match_with_fridge(fridge, recipe.portions) for recipe in
+                  MenuItem.objects.filter(menu=menu)]
+
+    missing_ingridients = list()
+
+    for menu_item in menu_items:
+        for item in menu_item:
+            # create new item in shopping list
+            new_item_created = True
+            missing_ingridient = {"missing_value": 0}
+
+            # check if the same item is already in the shopping list
+            for ingridient in missing_ingridients:
+                if ingridient["product"] == item["ingridient"].product and ingridient["measurement"] == item[
+                    "ingridient"].measurement:
+                    missing_ingridient = ingridient
+                    new_item_created = False
+                    break
+
+            # if item is not in the fridge or it is in the fridge but some amount is missing
+            if not item["in_fridge"] or item["missing"]:
+                missing_ingridient["product"] = item["ingridient"].product
+                missing_ingridient["measurement"] = item["ingridient"].measurement
+
+                if "missing_value" in item:
+                    missing_ingridient["missing_value"] += item["missing_value"]
+                else:
+                    missing_ingridient["missing_value"] += item["ingridient_value"]
+
+                if new_item_created:
+                    missing_ingridients.append(missing_ingridient)
+
+    return render(request, "recipes/shopping_list.html", {"missing_ingridients": missing_ingridients})

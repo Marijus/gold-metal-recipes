@@ -42,8 +42,10 @@
                             <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
                             <li><a href="{% url 'recipes' %}">Receptai</a></li>
-                            <li class="divider"></li>
-                            <li><a href="{% url 'add_recipe' %}">Pridėti receptą</a></li>
+                            {% if request.user.is_authenticated %}
+                                <li class="divider"></li>
+                                <li><a href="{% url 'add_recipe' %}">Pridėti receptą</a></li>
+                            {% endif %}
                         </ul>
                     </li>
                     <li class="dropdown">
@@ -52,8 +54,10 @@
                             <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
                             <li><a href="{% url 'products' %}">Produktai</a></li>
-                            <li class="divider"></li>
-                            <li><a href="{% url 'add_product' %}">Pridėti produktą</a></li>
+                            {% if request.user.is_authenticated %}
+                                <li class="divider"></li>
+                                <li><a href="{% url 'add_product' %}">Pridėti produktą</a></li>
+                            {% endif %}
                         </ul>
                     </li>
                     {% if request.user.is_authenticated %}
@@ -68,8 +72,10 @@
                             <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
                             <li><a href="{% url 'measurements' %}">Matavimo vienetai</a></li>
-                            <li class="divider"></li>
-                            <li><a href="{% url 'add_measurement' %}">Pridėti matavimo vienetą</a></li>
+                            {% if request.user.is_authenticated %}
+                                <li class="divider"></li>
+                                <li><a href="{% url 'add_measurement' %}">Pridėti matavimo vienetą</a></li>
+                            {% endif %}
                         </ul>
                     </li>
                 </ul>
@@ -103,10 +109,10 @@
             test
         {% endblock %}
         <!-- Site footer -->
-        <hr/>
-        <footer class="footer text-center">
-            <p>&copy; <i>Gold Metal 2014</i> <a href="https://github.com/Marijus/gold-metal-recipes">Github</a></p>
-        </footer>
+        {#        <hr/>#}
+        {#        <footer class="footer text-center">#}
+        {#            <p>&copy; <i>Gold Metal 2014</i> <a href="https://github.com/Marijus/gold-metal-recipes">Github</a></p>#}
+        {#        </footer>#}
     </div>
 {% endblock %}
 

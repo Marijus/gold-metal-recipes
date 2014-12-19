@@ -53,13 +53,15 @@
                 {% for match in matches %}
                     <li>{{ match.ingridient.product.title }}
                         - {{ match.ingridient_value }} {{ match.ingridient.measurement.short_title }}
-                        {% if match.in_fridge and not match.missing %}
-                            <span class="glyphicon glyphicon-ok text-success"></span>
-                        {% else %}
-                            <span class="glyphicon glyphicon-remove text-danger"></span>
-                            {% if match.item_in_fridge %}
-                                (Šaldytuve yra {{ match.item_in_fridge.value }}
-                                {{ match.item_in_fridge.measurement.short_title }})
+                        {% if request.user.is_authenticated %}
+                            {% if match.in_fridge and not match.missing %}
+                                <span class="glyphicon glyphicon-ok text-success"></span>
+                            {% else %}
+                                <span class="glyphicon glyphicon-remove text-danger"></span>
+                                {% if match.item_in_fridge %}
+                                    (Šaldytuve yra {{ match.item_in_fridge.value }}
+                                    {{ match.item_in_fridge.measurement.short_title }})
+                                {% endif %}
                             {% endif %}
                         {% endif %}
                     </li>
@@ -68,6 +70,7 @@
             <h3>Aprašymas</h3>
 
             <p>{{ recipe.description }}</p>
+            <hr/>
 
             <div class="form-group col-lg-3">
                 <input id="portions" type="number" class="form-control" min="1" value="{{ portions }}" step="1"/>
@@ -84,6 +87,7 @@
             </div>
 
             <div id="cannot_make">
+                <br/>
                 <p>Jūsų turimų produktų nepakanka pasigaminti šį receptą. Šaldytuvą galite papildyti <a
                         href="{% url 'products' %}">produktų</a>
                     skiltyje</p>
@@ -107,13 +111,13 @@
         $("#removed_from_fridge").hide();
         generate_rating({{ recipe.overall_rating }});
 
-        $("#portions").change(function(){
+        $("#portions").change(function () {
             var new_val = $("#portions").val();
             window.location.replace("{% url 'recipe' recipe.slug %}?portions=" + new_val);
         });
 
         $("#make_button").click(function () {
-            $.post("{% url 'can_make_recipe' recipe.id %}", {"csrfmiddlewaretoken": "{{ csrf_token }}"}, function (data) {
+            $.post("{% url 'can_make_recipe' recipe.id %}", {"csrfmiddlewaretoken": "{{ csrf_token }}", "portions": $("#portions").val()}, function (data) {
                 if (data["can_make"]) {
                     $("#can_make").show();
                 } else {
@@ -124,7 +128,7 @@
 
         $("#rating").change(function () {
             var rating = $("#rating").val();
-            $.post("{% url 'rate_recipe' recipe.id %}", {"csrfmiddlewaretoken": "{{ csrf_token }}", "rating": rating}, function (data) {
+            $.post("{% url 'rate_recipe' recipe.id %}", {"csrfmiddlewaretoken": "{{ csrf_token }}", "rating": rating, "portions": $("#portions").val()}, function (data) {
                 generate_rating(data["new_rating"]);
                 $("#can_make").hide();
                 $("#removed_from_fridge").show();

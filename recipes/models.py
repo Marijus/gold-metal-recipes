@@ -87,20 +87,22 @@ class Recipe(models.Model):
             match["ingridient"] = ingridient
             match["ingridient_value"] = ingridient.value * portions
             match["in_fridge"] = False
-            for item in fridge.products.all():
-                if item.product == ingridient.product:
-                    match["in_fridge"] = True
-                    match["missing"] = False
-                    match["item_in_fridge"] = item
 
-                    # Find missing amount
-                    if item.measurement == ingridient.measurement:
-                        if item.value < ingridient.value * portions:
+            if fridge is not None:
+                for item in fridge.products.all():
+                    if item.product == ingridient.product:
+                        match["in_fridge"] = True
+                        match["missing"] = False
+                        match["item_in_fridge"] = item
+
+                        # Find missing amount
+                        if item.measurement == ingridient.measurement:
+                            if item.value < ingridient.value * portions:
+                                match["missing"] = True
+                                match["missing_value"] = ingridient.value - item.value
+                        else:
+                            match["measurements_mismatch"] = True
                             match["missing"] = True
-                            match["missing_value"] = ingridient.value - item.value
-                    else:
-                        match["measurements_missmatch"] = True
-                        match["missing"] = True
 
             matches.append(match)
 

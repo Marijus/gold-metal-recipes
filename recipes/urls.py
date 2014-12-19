@@ -21,4 +21,5 @@ urlpatterns = patterns('',
                        url(r'^remove-from-fridge/(?P<id>\d+)/$', remove_from_fridge, name='remove_from_fridge'),
                        url(r'^remove-from-menu/(?P<id>\d+)/$', remove_from_menu, name='remove_from_menu'),
                        url(r'^add-to-menu/$', add_to_menu, name='add_to_menu'),
+                       url(r'^shopping-list/$', shopping_list, name='shopping_list'),
 )

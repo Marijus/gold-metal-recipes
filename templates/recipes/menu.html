@@ -5,44 +5,53 @@
 
 {% block content %}
     <h1 class="text-center">Valgiaraštis</h1>
-    {% if recipes.items %}
-    {% for recipe, matches in recipes.items %}
-        <div class="row">
-            <div class="col-lg-3">
-                <div class="thumbnail">
-                    {% thumbnail recipe.recipe.photo1 "300x300" crop="center" as im %}
-                        <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
-                    {% endthumbnail %}
-                    <div class="caption">
-                        <h3>{{ recipe.recipe.title }}</h3>
-                        <a class="btn btn-success" href="{% url 'recipe' recipe.recipe.slug %}">Peržiūrėti</a>
-                        <a class="btn btn-danger" href="{% url 'remove_from_menu' recipe.id %}">Ištrinti</a>
+    <div class="container col-lg-11">
+        {% if recipes.items %}
+            {% for recipe, matches in recipes.items %}
+                <div class="row">
+                    <div class="col-lg-3">
+                        <div class="thumbnail">
+                            {% thumbnail recipe.recipe.photo1 "300x300" crop="center" as im %}
+                                <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+                            {% endthumbnail %}
+                            <div class="caption">
+                                <h3>{{ recipe.recipe.title }}</h3>
+                                <a class="btn btn-success"
+                                   href="{% url 'recipe' recipe.recipe.slug %}?portions={{ recipe.portions }}">Peržiūrėti</a>
+                                <a class="btn btn-danger" href="{% url 'remove_from_menu' recipe.id %}">Ištrinti</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <h3>Gaminimo data: {{ recipe.date|date:"Y-m-d" }}</h3>
+
+                        <h3>Porcijų skaičius: {{ recipe.portions }}</h3>
+
+                        <h3>Ingridientai:</h3>
+                        <ul>
+                            {% for match in matches %}
+                                <li>{{ match.ingridient.product.title }}
+                                    - {{ match.ingridient_value }} {{ match.ingridient.measurement }}
+                                    {% if match.in_fridge and not match.missing %}
+                                        <span class="glyphicon glyphicon-ok text-success"></span>
+                                    {% else %}
+                                        <span class="glyphicon glyphicon-remove text-danger"></span>
+                                        {% if match.item_in_fridge %}
+                                            (Šaldytuve yra {{ match.item_in_fridge.value }}
+                                            {{ match.item_in_fridge.measurement.short_title }})
+                                        {% endif %}
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
                     </div>
                 </div>
-            </div>
-            <div class="col-lg-5">
-                <h3>Gaminimo data: {{ recipe.date|date:"Y-m-d" }}</h3>
-                <h3>Porcijų skaičius: {{ recipe.portions }}</h3>
-                <h3>Ingridientai:</h3>
-                <ul>
-                    {% for match in matches %}
-                        <li>{{ match.ingridient.product.title }}
-                            - {{ match.ingridient_value }} {{ match.ingridient.measurement }}
-                            {% if match.in_fridge and not match.missing %}
-                                <span class="glyphicon glyphicon-ok text-success"></span>
-                            {% else %}
-                                <span class="glyphicon glyphicon-remove text-danger"></span>
-                                {% if match.item_in_fridge %}
-                                    (Šaldytuve yra {{ match.item_in_fridge.value }} {{ match.item_in_fridge.measurement.short_title }})
-                                {% endif %}
-                            {% endif %}
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-    {% endfor %}
-    {% else %}
-        <p>Jūsų valgiaraštyje kol kas nėra <a href="{% url 'recipes' %}">receptų</a></p>
-    {% endif %}
+            {% endfor %}
+        {% else %}
+            <p>Jūsų valgiaraštyje kol kas nėra <a href="{% url 'recipes' %}">receptų</a></p>
+        {% endif %}
+    </div>
+    <div class="container col-lg-1">
+        <a href="{% url 'shopping_list' %}" class="btn btn-info">Pirkinių sarašas</a>
+    </div>
 {% endblock %}

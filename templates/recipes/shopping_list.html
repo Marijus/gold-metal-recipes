@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Pirkinių sarašas</h1>
+    <ul>
+    {% for ingridient in missing_ingridients %}
+        <li>{{ ingridient.product.title }} - {{ ingridient.missing_value }} ({{ ingridient.measurement.short_title }})</li>
+    {% endfor %}
+    </ul>
+    <hr/>
+    <a href="{% url 'shopping_list_to_fridge' %}" class="btn btn-success">Pridėti visus į šaldytuvą</a>
+{% endblock %}

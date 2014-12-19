@@ -146,6 +146,41 @@ class Menu(models.Model):
     def __unicode__(self):
         return self.user.username + " menu"
 
+    def get_missing_ingridients(self, fridge):
+        menu_items = [recipe.recipe.match_with_fridge(fridge, recipe.portions) for recipe in
+                      MenuItem.objects.filter(menu=self)]
+
+        missing_ingridients = list()
+
+        for menu_item in menu_items:
+            for item in menu_item:
+                # create new item in shopping list
+                new_item_created = True
+                missing_ingridient = {"missing_value": 0}
+
+                # check if the same item is already in the shopping list
+                for ingridient in missing_ingridients:
+                    if ingridient["product"] == item["ingridient"].product and ingridient["measurement"] == item[
+                        "ingridient"].measurement:
+                        missing_ingridient = ingridient
+                        new_item_created = False
+                        break
+
+                # if item is not in the fridge or it is in the fridge but some amount is missing
+                if not item["in_fridge"] or item["missing"]:
+                    missing_ingridient["product"] = item["ingridient"].product
+                    missing_ingridient["measurement"] = item["ingridient"].measurement
+
+                    if "missing_value" in item:
+                        missing_ingridient["missing_value"] += item["missing_value"]
+                    else:
+                        missing_ingridient["missing_value"] += item["ingridient_value"]
+
+                    if new_item_created:
+                        missing_ingridients.append(missing_ingridient)
+
+        return missing_ingridients
+
 
 class MenuItem(models.Model):
     recipe = models.ForeignKey(Recipe)

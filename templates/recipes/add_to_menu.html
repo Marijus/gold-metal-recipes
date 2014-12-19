@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block head %}
+    <link href="{% static 'datepicker.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+    <h3>Pridėti į valgiaraštį</h3>
+    <form method="post" role="form">{% csrf_token %}
+        <div class="row">
+            <div class="form-group col-lg-5">
+                <label for="id_product">Receptas</label>
+                {{ form.recipe }}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group col-lg-5">
+                <label for="id_product">Gaminimo data</label>
+                {{ form.date }}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group col-lg-5">
+                <label for="id_product">Porcijų skaičius</label>
+                {{ form.portions }}
+            </div>
+        </div>
+
+        <input type="submit" class="btn btn-success" value="Pridėti"/>
+    </form>
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'bootstrap-datepicker.js' %}"></script>
+    <script type="text/javascript">
+        $('.datepicker').datepicker({
+            "format": "yyyy-mm-dd"
+        }).on('changeDate', function (ev) {
+            $(".datepicker").datepicker('hide');
+        });
+    </script>
+{% endblock %}

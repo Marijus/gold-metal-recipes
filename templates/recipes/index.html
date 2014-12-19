@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+    <!-- Jumbotron -->
+    <div class="jumbotron">
+        <h1>KuPRA. Išmaniųjų receptų sistema.</h1>
+
+        <p class="lead">Sveiki atvyke į išmaniają KuPRA receptų sistema.</p>
+
+        <p><a class="btn btn-lg btn-success" href="{% url 'recipes' %}" role="button">Receptų katalogas</a></p>
+    </div>
+
+    <!-- Example row of columns -->
+    <div class="row">
+        <div class="col-lg-4">
+            <h2>Ką galiu pasigaminti?</h2>
+
+            <p>Sukate galvą ką pasigaminti valgyti ? Filtruokite receptus pagal šaldytuvo turinį ir raskite receptus
+                kuriuos jau galite pasigaminti.</p>
+
+            <p><a class="btn btn-primary" href="{% url 'recipes' %}" role="button">Receptai &raquo;</a></p>
+        </div>
+        <div class="col-lg-4">
+            <h2>Šaldytuvas</h2>
+
+            <p>Išmanusis šaldytuvas. Nuo šiol nebereikia eitį į virutvę, kad sužinoti ką turite šaldytuve.</p>
+
+            {% if request.user.is_authenticated %}
+                <p><a class="btn btn-primary" href="{% url 'fridge' %}" role="button">Šaldytuvas &raquo;</a></p>
+            {% endif %}
+        </div>
+        <div class="col-lg-4">
+            <h2>Valgiaraštis</h2>
+
+            <p>Sudarykite savo valgiaraštį, sužinokite kokių ingridientų trūksta, gaukite pirkinių sarašą.</p>
+
+            {% if request.user.is_authenticated %}
+                <p><a class="btn btn-primary" href="{% url 'menu' %}" role="button">Valgiaraštis &raquo;</a></p>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}

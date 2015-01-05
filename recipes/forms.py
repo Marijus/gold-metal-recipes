@@ -5,6 +5,7 @@ from django.forms.models import inlineformset_factory
 
 attributes = {'class': 'form-control'}
 
+
 class MeasurmentForm(forms.ModelForm):
     class Meta:
         model = Measurement
@@ -17,7 +18,7 @@ class ProductForm(forms.ModelForm):
 
 class FridgeForm(forms.Form):
     product = forms.ModelChoiceField(queryset=None, widget=forms.Select(attrs={'class': 'form-control'}))
-    amount = forms.FloatField(widget=forms.NumberInput(attrs={'class': 'form-control'}))
+    amount = forms.FloatField(widget=forms.NumberInput(attrs={'type': 'number', 'class': 'form-control', 'min': '0.001'}))
     measurement = forms.ModelChoiceField(queryset=None, widget=forms.Select(attrs={'class': 'form-control'}))
 
     def __init__(self, *args, **kwargs):
@@ -29,7 +30,7 @@ class FridgeForm(forms.Form):
 class MenuForm(forms.Form):
     recipe = forms.ModelChoiceField(queryset=None, widget=forms.Select(attrs=attributes))
     date = forms.DateField(widget=forms.DateInput(attrs={"class": "form-control datepicker"}))
-    portions = forms.IntegerField(widget=forms.NumberInput(attrs={"class": "form-control",
+    portions = forms.FloatField(widget=forms.NumberInput(attrs={'type': 'number', "class": "form-control",
                                                                   "min": 1,
                                                                   "step": 1}))
 
@@ -54,7 +55,8 @@ class RecipeForm(forms.ModelForm):
 
 class IngridientForm(forms.ModelForm):
     product = forms.ModelChoiceField(queryset=None, widget=forms.Select(attrs={'class': 'form-control'}))
-    value = forms.DecimalField(decimal_places=2, widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Kiekis'}))
+    value = forms.DecimalField(decimal_places=2, widget=forms.NumberInput(
+        attrs={'type': 'number', 'class': 'form-control', 'placeholder': 'Kiekis', 'min': '0.001'}))
     measurement = forms.ModelChoiceField(queryset=None, widget=forms.Select(attrs={'class': 'form-control'}))
 
     def __init__(self, *args, **kwargs):
